@@ -1,14 +1,19 @@
 import { useState, useEffect } from "react";
 
-const Session = ({ session, onChangeSession, startTimer }) => {
-  const handleSession = (e) => {
-    if (!startTimer) {
-      const name = e.target.innerHTML;
-      if (name === "increment") {
-        onChangeSession("increment");
-      } else if (name === "decrement" && session != 1) {
-        onChangeSession("decrement");
-      }
+const Session = ({ session, startTimer, sessionIncDec, timer }) => {
+  const handleIncrement = () => {
+    const newLength = session + 1;
+    if (session != 60) {
+      sessionIncDec(newLength);
+      timer(newLength * 60);
+    }
+  };
+
+  const handDecrement = () => {
+    const newLength = session - 1;
+    if (session != 1) {
+      sessionIncDec(newLength);
+      timer(newLength * 60);
     }
   };
 
@@ -18,10 +23,10 @@ const Session = ({ session, onChangeSession, startTimer }) => {
         <label id="session-label">Session Length</label>
         <p id="session-length">{session}</p>
       </div>
-      <button id="session-increment" onClick={handleSession}>
+      <button id="session-increment" onClick={handleIncrement}>
         increment
       </button>
-      <button id="session-decrement" onClick={handleSession}>
+      <button id="session-decrement" onClick={handDecrement}>
         decrement
       </button>
     </div>

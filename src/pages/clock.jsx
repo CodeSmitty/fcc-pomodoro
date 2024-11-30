@@ -1,35 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Session from "../components/session";
 import Break from "../components/break";
+import { Timer } from "../components/timer";
+import Audio from "../components/audio";
 
 export const Clock = ({}) => {
-  const [initialMinutes, setInitialMinutes] = useState(25);
-  const [initialSeconds, setInitialSeconds] = useState(0);
+  const audio = useRef(undefined)
+
   const [startStopTimer, setStartStopTimer] = useState(false);
   const [sessionLength, setSessionLength] = useState(25);
-  const [isBreakActive, setIsBreakActive] = useState(false);
+  const [session, setSession] = useState("Break");
+  const [countdownTimer, setCountdownTimer] = useState(25 * 60);
+  const [breakSession, setBreakSession] = useState(5);
 
   const resetTimer = () => {
-    setInitialMinutes(25);
-    setInitialSeconds(0);
-    setStartStopTimer(!startStopTimer);
+    audio.current.load()
+    setStartStopTimer(false);
+    setCountdownTimer(25 * 60);
+    setSession("Session");
     setSessionLength(25);
+    setBreakSession(5);
   };
 
   const resetState = () => {
-    setInitialMinutes(25);
-    setInitialSeconds(0);
+    audio.current.load()
+    setStartStopTimer(false);
     setSessionLength(25);
-  };
-
-  const sessionTimer = (newState) => {
-    if (newState === "increment") {
-      setInitialMinutes(sessionLength + 1);
-      setSessionLength(sessionLength + 1);
-    } else if (newState === "decrement") {
-      setInitialMinutes(sessionLength - 1);
-      setSessionLength(sessionLength - 1);
-    }
+    setSession("Session");
+    setBreakSession(5);
+    setCountdownTimer(25 * 60);
   };
 
   useEffect(() => {
@@ -37,68 +36,63 @@ export const Clock = ({}) => {
   }, []);
 
   useEffect(() => {
-    let interval;
-
+    let intervalId;
     if (startStopTimer) {
-      if (initialMinutes > 0 || initialSeconds > 0) {
-        interval = setInterval(() => {
-          if (initialSeconds > 0) {
-            setInitialSeconds(initialSeconds - 1);
-          } else if (initialMinutes > 0 || initialSeconds === 0) {
-            setInitialMinutes(initialMinutes - 1);
-            setInitialSeconds(59);
-          }
-        }, 1000);
+      intervalId = setInterval(() => {
+        setCountdownTimer((prev) => {
+          const newTimer = prev - 1;
+          return newTimer;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(intervalId);
+  }, [startStopTimer]);
+
+  useEffect(() => {
+    if (countdownTimer === -1) {
+      audio.current.play()
+      if (session === "Session") {
+        console.log('timer: ', countdownTimer)
+        setSession("Break");
+        setCountdownTimer(breakSession * 60);
       } else {
-        clearInterval(interval);
+        setCountdownTimer(sessionLength * 60);
+        setSession("Session");
       }
     }
-
-    return () => clearInterval(interval);
-  }, [initialMinutes, initialSeconds, startStopTimer]);
-
-  const minutes = initialMinutes.toString().padStart(2, "0");
-  const seconds = initialSeconds.toString().padStart(2, "0");
-
-  if (minutes === "00" && seconds === "00") {
-    setIsBreakActive(true);
-  }
+  }, [startStopTimer, sessionLength, countdownTimer, breakSession]);
 
   return (
-    <div>
-      <div class="break-session-container">
-        <div class="session-container">
+    <div className="clock-container">
+      <div>
+        <Audio audio={audio} />
+      </div>
+      <div className="break-session-container">
+        <div className="session-container">
           <Session
             session={sessionLength}
-            onChangeSession={sessionTimer}
             startTimer={startStopTimer}
+            sessionIncDec={setSessionLength}
+            timer={setCountdownTimer}
           />
         </div>
-        <div class="break-container">
-          <Break
-            breakLength={(newState) => setInitialMinutes(newState)}
-            breakActive={isBreakActive}
-          />
+        <div className="break-container">
+          <Break sessions={breakSession} breakLength={setBreakSession} />
         </div>
       </div>
-      <div class="timer-container">
-        <div>
-          <label id="timer-label">Session</label>
-          <p id="time-left">
-            {minutes}:{seconds}
-          </p>
-        </div>
-        <div>
-          <button
-            id="start_stop"
-            onClick={() => setStartStopTimer(!startStopTimer)}
-          >
-            play/pause
-          </button>
-          <button id="reset" onClick={() => resetTimer()}>
-            reset
-          </button>
-        </div>
+      <div className="timer-container">
+          <Timer timer={countdownTimer} sessionType={session} />
+          <div className="buttons">
+            <button
+              id="start_stop"
+              onClick={() => setStartStopTimer(!startStopTimer)}
+            >
+              play/pause
+            </button>
+            <button id="reset" onClick={resetTimer}>
+              reset
+            </button>
+          </div>
       </div>
     </div>
   );

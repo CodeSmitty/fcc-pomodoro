@@ -1,31 +1,22 @@
 import { useState, useEffect } from "react";
 
-const Break = ({ breakLength, breakActive }) => {
-  const [baseBreak, setBaseBrake] = useState(5);
-
+const Break = ({ sessions, breakLength, timer }) => {
   const decrement = () => {
-    console.log("hola");
-    if (baseBreak != 1) {
-      setBaseBrake(baseBreak - 1);
-      if (breakActive) {
-        breakLength(baseBreak);
-      }
+    if (sessions != 1) {
+      breakLength(sessions - 1);
     }
   };
 
   const increment = () => {
-    setBaseBrake(baseBreak + 1);
-    breakLength(baseBreak);
+    if (sessions != 60) {
+      breakLength(sessions + 1);
+    }
   };
-
-  useEffect(() => {
-    setBaseBrake(5);
-  }, [setBaseBrake]);
 
   return (
     <div>
       <label id="break-label">Break Length</label>
-      <p id="break-length">{baseBreak}</p>
+      <p id="break-length">{sessions}</p>
       <button id="break-increment" onClick={() => increment()}>
         inrement
       </button>

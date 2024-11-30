@@ -1,15 +1,41 @@
-.timer-container{
-  margin-top:10em;
-  justify-content: center;
-  display:flex;
-  flex-flow:column wrap;
-  align-items: center;
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.break-session-container{
-  background-color: red;
+.App{
+  height:100vh;
+  min-height:100vh;
+  background: rgb(2,0,36);
+  background: linear-gradient(132deg, rgba(2,0,36,1) 0%, rgba(8,14,162,0.8969712885154062) 44%, rgba(0,212,255,1) 100%);
+  display:flex;
+  justify-content: center;
+}
+
+.clock-container{
+  margin-top:100px;
+  min-width:100%;
+}
+
+.timer-container{
+  width:10em;
+  height:10em;
   margin:auto;
+  justify-content: center;
+  display:flex;
+  flex-flow:column nowrap;
+  align-items: center;
   margin-top:5em;
+  border:solid 2px black;
+  padding:60px;
+  border-radius:60%;
+}
+
+
+.break-session-container{
+  margin:auto;
   width:80%;
   display:flex;
   flex-flow:row wrap;
@@ -21,6 +47,5 @@
   flex:0 0 40%;
   display: flex;
   justify-content: center;
-  background-color: blue;
   text-align: center;
 }
